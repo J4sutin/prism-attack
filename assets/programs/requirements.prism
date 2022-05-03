@@ -1,0 +1,232 @@
+#!/bin/bash
+
+OS=$(uname -o)
+# System Checker
+
+function screenSize() {
+    if ! hash tput &> /dev/null
+    then
+    apt install -y ncurses-utils
+    fi
+
+      SIZE=$(tput cols)
+
+                if [ ! ${SIZE} -ge "60" ]
+                then
+                printf "\nYour Terminal Window Size must be above ${C2}60${R0} >= ${C1}${SIZE}${R0}\nPinch two fingers together on the screen to zoom out.\n"
+                fi
+}
+
+if [[ $OS == *'Android'* ]];then
+screenSize
+TMPDIR=/data/data/com.termux/files/usr/tmp
+pm() {
+apt install -y $1
+}
+else
+TMPDIR=/tmp
+# Package Managers
+    distro=$(source /etc/os-release && echo $ID)
+    case $distro in
+        arch)
+            pm() {
+                sudo pacman -Sy --noconfirm $1
+                }
+            ;;
+        ubuntu)
+            pm() {
+                sudo apt-get install -y $1
+                }
+            ;;
+        linuxmint)
+            pm() { sudo apt-get install -y $1
+                }
+            ;;
+        kali)
+            pm() { sudo apt-get install -y $1
+                }
+            ;;
+        parrot)
+            pm() { sudo apt-get install -y $1
+                }
+            ;;
+        debian)
+            pm() { sudo apt-get install -y $1
+                }
+            ;;
+        void)
+            pm() { sudo xbps-install $1
+                }
+            ;;
+        manjaro*)
+            pm() { sudo pacman -Sy $1
+                }
+            ;;
+        garuda)
+            pm() { sudo pacman -Sy $1
+                }
+            ;;
+        alpine)
+            pm() { sudo apk add $1
+                }
+            ;;
+        gentoo)
+            pm() { sudo emerge --ask $1
+                }
+            ;;
+        fedora)
+            pm() { sudo dnf install -y $1
+                }
+            ;;
+        predator)
+            pm() { sudo pacman -Sy --noconfirm $1
+                }
+            ;;
+        artix)
+            pm() { sudo pacman -Sy --noconfirm $1
+                }
+            ;;
+        puppy_fossapup64)
+            pm() { sudo pkg -d $1 && sudo pkg -i $1
+                }
+            ;;
+        raspbian)
+            pm() { sudo apt install -y $1
+                }
+            ;;
+        endeavouros)
+            pm() { sudo pacman -Sy --noconfirm $1
+                }
+            ;;
+        freebsd)
+            pm() { sudo pkg install -y $1
+                }
+            ;;
+        *)
+          echo "Sorry, but your System doesn't support [package manager] !"
+          # Add manualy to use package manager to start prismconsole !
+            exit 0
+            ;;
+    esac
+fi
+
+if ! hash svn &> /dev/null
+then
+pm subversion
+fi
+
+installPACKAGE() {
+if ! hash $1 &> /dev/null
+then
+pm $1
+fi
+}
+
+installPACKAGE "php"
+installPACKAGE "git"
+installPACKAGE "jq"
+installPACKAGE "curl"
+installPACKAGE "clang"
+if [[ $OS == *'Android'* ]];then
+installPACKAGE "proot"
+installPACKAGE "python"
+installPACKAGE "python2"
+else
+installPACKAGE "python2"
+installPACKAGE "python3"
+fi
+
+PACKAGES="svn php git jq curl clang"
+
+checkPACKAGE() {
+if ! hash ${PACKAGES} $1 $2 &> /dev/null
+then
+errorPACKAGE
+exit 1
+fi
+}
+
+errorPACKAGE() {
+printf "${C1}\e[1mE:${R0} Unable to run prismconsole right now cause :\n"
+printf "${C1}\e[1mE:${R0} Dependencies are not Installed yet (prismconsole)\n"
+}
+
+if [[ $OS == *'Android'* ]];then
+checkPACKAGE "proot"
+checkPACKAGE "python"
+checkPACKAGE "python2"
+else
+checkPACKAGE "python2"
+checkPACKAGE "python3"
+fi
+
+python_packages()
+{
+#source ~/prism-att&ck/assets/programs/animation.prism
+
+declare -a PIPS=(
+'terminaltables'
+'json2html'
+'termcolor'
+'requests'
+'shodan'
+'huepy'
+'jedi'
+'bs4'
+'six'
+)
+
+pip_requirements()
+{
+  LOOP=0
+  ARG=$1
+  DUMP()
+  {
+    pip$ARG show ${PIPS[@]} | grep Name | cut -c 7- > $TMPDIR/pip$ARG.log
+    sleep 1
+  }
+
+progress-bar "__cmd__ DUMP" "0" "prog:4" \
+":: Checking python$ARG requirements" -r
+
+for i in "${PIPS[@]}"
+do
+  KEY=$(printf "%02d" $NUM)
+  LOOP=$((${LOOP:-0}+1))
+  CATCH=${i::$((${#i}))}
+
+#  CHECK=$(pip$1 show $CATCH | grep Name | cut -c 7- > $TMPDIR/pip$1.log)
+
+  LOGS=$(cat $TMPDIR/pip$1.log | awk NR==$LOOP)
+
+  if [[ ${CATCH} == ${LOGS} ]]
+  then
+    :
+#    echo "$CATCH is available."
+  else
+    pip$ARG install $CATCH
+#    echo "$CATCH not available."
+  fi
+  ((NUM++))
+  done
+}
+
+#pp()
+#{
+pip_requirements 2
+pip_requirements 3
+#}
+
+#progress-bar "__cmd__ pp" "0.05" "prog:4" \
+#":: Checking python requirements" -r
+}
+
+if [[ $1 == "-i" || $1 == "--install" ]]
+then
+python_packages
+fi
+
+if [[ $1 == "-d" || $1 == "--debug" ]]
+then
+echo -e "+ ${C2}\e[1mP:${R0} All required packages are installed."
+fi

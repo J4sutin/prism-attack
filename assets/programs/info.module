@@ -1,0 +1,31 @@
+#!/bin/bash
+
+aboutMOFULES() {
+if [[ $MODE == "Information\ Gathering/NUMBER" ]]
+then
+   INFO=$(printf "module to gather information of numbers.")
+
+elif [[ $MODE == "Information\ Gathering/MAC" ]]
+then
+   INFO=$(printf "module to gather vendor information from Mac addresses.")
+
+elif [[ $MODE == "Information\ Gathering/COORDINATE" ]]
+then
+   INFO=$(printf "module to gather exact location using coordinates.")
+
+elif [[ $MODE == "ENUMERATION/BRUTEFORCE" ]]
+then
+   INFO=$(printf "module to perform social bruteforce attack.")
+
+elif [[ $MODE == "ATTACK/DDOS" ]]
+then
+   INFO=$(printf "module to perform ddos attack on sites.")
+
+elif [[ $MODE == "Privilege\ Escalation/HASHES" ]]
+then
+   INFO=$(printf "module to generate hashing algorithm.")
+
+elif [[ $MODE == "ENUMERATION/HASH" ]]
+then
+   INFO=$(printf "module to identify hash algorithms.")
+
