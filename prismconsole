@@ -1,0 +1,2036 @@
+#!/usr/bin/env bash
+
+#┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+#┃ Project   : Prism ATT&CK                                     ┃
+#┃ Copyright : Justine Dela Torre (Jasutin)                     ┃
+#┃ Version   : 10.3.4 (Modded)                                  ┃
+#┃ Github    : J4sutin <github.com/j4sutin>                     ┃
+#┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+__return__ () {
+source __return__ &> /dev/null
+if [[ ! $? == 105 ]]
+then
+printf 105
+fi
+}
+
+#set +x
+
+if [[ $_ == "+x" ]]
+then
+debug="false"
+else
+debug="true"
+fi
+
+__return__=$(printf "$(__return__)")
+
+WAIT() {
+sleep 0.01
+}
+
+if [[ ${1} == "-dir" ]]
+then
+  pwd;exit 0
+fi
+
+# Prompt default : 1
+
+PROMPT=1
+
+# Color default : 1
+
+COLOR=1
+
+# Auto List while execution modules.
+autolist=on
+
+# Auto update checker while prism start.
+updater=on
+
+# Auto updater while prism start.
+autoupdate=true
+
+# Animation default : true
+
+ANIMATION=true
+
+# Variable
+
+export RAWLINK=https://raw.githubusercontent.com/j4sutin/prism-attack/master
+export GITLINK=https://github.com/j4sutin/prism-attack
+export OS=$(uname -o | grep -o "Android")
+export OUTPUT=$HOME/.history.prism
+ARCH=$(dpkg --print-architecture)
+PWF="assets/programs"
+CWD=$(pwd)
+VAR=10.3.4
+PSNUM=3
+CLNUM=3
+NUM=1
+
+# Modules options list
+
+if [[ ! $__return__ == 105 ]];then
+  if [ ! -f "${CWD}/${PWF}/utils.prism" ]
+  then
+    bash <(curl -sLo- "${RAWLINK}/assets/programs/utils.prism")
+  else
+    bash ${CWD}/${PWF}/utils.prism
+  fi
+  source ${CWD}/assets/login/login.conf
+  source ${CWD}/${PWF}/colors.prism
+  source ${CWD}/${PWF}/animation.prism
+  source ${CWD}/${PWF}/list.module
+  source ${CWD}/${PWF}/info.module
+  source ${CWD}/${PWF}/help.module
+  source ${CWD}/assets/extras/extra.conf
+else
+  source <(curl -sLo- "${RAWLINK}/${PWF}/colors.prism")
+  source <(curl -sLo- "${RAWLINK}/${PWF}/animation.prism")
+  source <(curl -sLo- "${RAWLINK}/${PWF}/list.module")
+  source <(curl -sLo- "${RAWLINK}/${PWF}/info.module")
+  source <(curl -sLo- "${RAWLINK}/${PWF}/help.module")
+fi
+
+if [[ $ANIMATION == "true" ]]
+then
+  :
+else
+  unset progress-bar
+  progress-bar()
+  {
+    $@ | printf "\rWelcome to Prism Att&ck ..."
+         printf "                                   \r"
+  }
+fi
+
+SUBMODULES="${#SUBMODULE[@]}"
+MODULES="${#MODULE[@]}"
+
+# Sign
+
+R0="$(printf '\033[00m')"
+R1="$(printf '\033[01m')"
+R2="$(printf '\033[02m')"
+R3="$(printf '\033[03m')"
+R4="$(printf '\033[04m')"
+R5="$(printf '\033[05m')"
+R6="$(printf '\033[06m')"
+R7="$(printf '\033[07m')"
+
+# Colors
+
+if [[ ${1} == "color="* ]]
+then
+ INT=$(printf "${1#color=}")
+  INT=${INT#0}
+  if [[ ${INT} =~ ^-?[0-9]*[.,]?[0-9]*[eE]?-?[0-9]+$ ]]
+   then
+   if [[ ! ${INT} -gt ${CLNUM} ]]
+    then
+       if [[ ! $__return__ == 105 ]]
+        then
+          unset COLOR
+        FIND=$(grep -w "COLOR=*" $(basename $0) | awk NR==1)
+        sed -i "s/$FIND/COLOR=$INT/g" $(basename $0)
+        COLOR=$INT 
+        else
+        COLOR=$INT
+       fi
+    else
+      :
+   fi
+ fi
+fi
+
+if [[ ${COLOR} == "1" ]]
+then
+  color_mode 1
+elif [[ ${COLOR} == "2" ]]
+then
+  color_mode 2
+elif [[ ${COLOR} == "3" ]]
+then
+  color_mode 3
+fi
+
+r0SIGN="${C1}(${R0}>${C1})${R0}"
+r1SIGN="${C1}(${R0}!${C1})${R0}"
+
+g0SIGN="${C2}(${R0}>${C2})${R0}"
+g1SIGN="${C2}(${R0}!${C2})${R0}"
+
+b0SIGN="${C4}(${R0}>${C4})${R0}"
+b1SIGN="${C4}(${R0}!${C4})${R0}"
+
+if [[ ${1} == "color="* ]]
+then
+ INT=$(printf "${1#color=}")
+  INT=${INT#0}
+  if [[ ${INT} =~ ^-?[0-9]*[.,]?[0-9]*[eE]?-?[0-9]+$ ]]
+   then
+   if [[ ! ${INT} -gt ${CLNUM} ]]
+    then
+       if [[ ! $__return__ == 105 ]]
+        then
+          COLOR=$INT
+          echo "${g0SIGN} Your Color set as ${R1}${INT} (${color_name}${R0}${R1})${R0}"
+        else
+        COLOR=$INT
+       fi
+    else
+    echo "${r0SIGN} Your Color Number digit must be above ${C1}${INT}${R0} <= ${C2}${CLNUM}${R0}"
+   fi
+ fi
+fi
+# prism requirements
+
+if [[ ! $__return__ == 105 ]];then
+source $CWD/assets/programs/requirements.prism
+else
+source <(curl -sLo- "${RAWLINK}/assets/programs/requirements.prism")
+fi
+
+sudoPERM() {
+if [[ $OS == *'Android'* ]];then
+  :
+else
+sudo -v
+fi
+}
+
+setOS() {
+if [[ $OS == *'Android'* ]];then
+printf "$1"
+# "$1"
+else
+printf "$2"
+# "$2"
+fi
+}
+
+
+getSYS()
+{
+WHO=$(printf "$(whoami)@$(uname -n)")
+SHL=$(printf "$SHELL")
+
+if [[ $OS == *'Android'* ]];then
+SYS=$(printf "$(getprop ro.product.manufacturer): ${OS} $(getprop ro.build.version.release)")
+KRN=$(uname -r)
+else
+SYS=$(source /etc/os-release ; echo $NAME)
+KRN=$(uname -r)
+fi
+
+printf "
+User     : ${WHO}
+System   : ${SYS} - ${KRN}
+Shell    : ${SHL}
+"
+}
+
+dev.login()
+{
+if [[ ! $__return__ == 105 ]];then
+  dev.conf
+else
+  :
+fi
+}
+
+# <<<--- Interpreter Section ! --->>>
+
+cacheFILES() {
+if [[ ${MODE} == "PHISH/OTPWEB" ]]
+then
+rm -rf "${SCRIPT_PATH[@]}"/"${OSITES[${input} -1]}" &> /dev/null
+elif [[ ${MODE} == "PHISH/NOTPWEB" ]]
+then
+rm -rf "${SCRIPT_PATH[@]}"/"${SITES[${input} -1]}" &> /dev/null
+elif [[ ${MODE} == "PHISH/GPSWEB" ]]
+then
+rm -rf "${SCRIPT_PATH[@]}"/"${GSITES[${input} -1]}" &> /dev/null
+elif [[ ${MODE} == "PHISH/CAMWEB" ]]
+then
+rm -rf "${SCRIPT_PATH[@]}"/"${CSITES[${input} -1]}" &> /dev/null
+elif [[ ${MODE} == "PHISH/MICWEB" ]]
+then
+rm -rf "${SCRIPT_PATH[@]}"/"${MSITES[${input} -1]}" &> /dev/null
+elif [[ ${MODE} == "ATTACK/DDOS" ]]
+then
+rm -rf $PWD/programs/ATTACK/DDOS/ddos &> /dev/null
+fi
+}
+
+interruptjasu() {
+printf "                                                  \r"
+echo -e "${r0SIGN} jasuconsole is Interrupted                "
+exit 0
+}
+
+
+if [[ ! $__return__ == 105 ]];then
+vaild_login()
+{
+eval $(base64 -d <<<"YmxvY2tXQUxMCg==")
+}
+else
+  vaild_login()
+  {
+    :
+  }
+fi
+
+description()
+{
+NAME="${1}"
+MODE="${2}"
+NET="${3}"
+}
+
+special.event()
+{
+
+# Special Events.
+if [[ ! $NET == "off"  ]]
+then
+source <(curl -sLo- "https://raw.githubusercontent.com/J4sutin/prism-attack/default/assets/extras/extra.conf")
+fi
+sleep 1
+}
+
+if [[ -f "$PREFIX/etc/prisminstall.conf" ]]
+then
+  source $PREFIX/etc/prisminstall.conf
+  presentDIR="${installDIR}"
+fi
+
+killZONE() {
+  if [[ ! $__return__ == 105 ]];then
+    source $CWD/assets/programs/pskill.prism
+  else
+    source <(curl -sLo- "${RAWLINK}/assets/programs/killprogress.prism")
+  fi
+
+  PS_NUM=${#psKill[@]}
+
+for m in "${psKills[@]}"
+  do
+  N_LOOP=$((${N_LOOP:-0}+1))
+  PS_CODE=${m::$((${#m}))}
+  kill $PS_CODE &> /dev/null
+  ((n_NUM++))
+done
+}
+
+interrupt () {
+exit_on_signal_SIGINT () { killZONE &> /dev/null
+if [[ ! $__return__ == 105 ]];then
+if [[ ${ARG} == "-s" ]];then
+if [[ ${SITENUM} == "${SITENUM}" ]];then
+rm -rf "${SCRIPT_PATH[@]}"/"${SITENUM}" &> /dev/null
+fi
+else
+cacheFILES
+fi
+interruptjasu
+else
+interruptjasu
+fi
+}
+
+exit_on_signal_SIGTSTP () { killZONE &> /dev/null
+if [[ ! $__return__ == 105 ]];then
+rm -rf "${SCRIPT_PATH[@]}"/"${SITES[${input} -1]}" &> /dev/null
+if [[ ${ARG} == "-s" ]];then
+if [[ ${SITENUM} == "${SITENUM}" ]];then
+rm -rf "${SCRIPT_PATH[@]}"/"${SITENUM}" &> /dev/null
+fi
+else
+cacheFILES
+fi
+interruptjasu
+else
+interruptjasu
+fi
+}
+
+trap exit_on_signal_SIGINT SIGINT
+trap exit_on_signal_SIGTSTP SIGTSTP
+}
+
+
+# <<<--- Help Section --->>>
+
+SHOWMODULES() {
+for i in "${SHOWMODULES[@]}"
+  do
+  KEY=$(printf "%02d" $NUM)
+  LOOP=$((${LOOP:-0}+1))
+  SHOW=${i::$((${#i}))}
+  printf "${C3}${SHOW}${R0}\n"
+  ((NUM++))
+  done
+}
+
+SUBMODULE() {
+for i in "${SUBMODULE[@]}"
+  do
+  KEY=$(printf "%02d" $NUM)
+  LOOP=$((${LOOP:-0}+1))
+  SHOW=${i::$((${#i}))}
+  printf "${C3}${SHOW}${R0}\n"
+  ((NUM++))
+  done
+}
+
+helpCOMMANDS () {
+echo -e "
+${B0}Console Commands${R0}
+================
+
+    Command     Description
+    -------     -----------
+    ${C2}show${R0}        Command to displays option of a given type.
+    ${C2}quit${R0}        Command to exit jasuconsole instance.
+    ${C2}clear${R0}       Command to clear screen.
+    ${C2}help${R0}        Command to show help meunu.
+    ${C2}search${R0}      Command to search available module.
+    ${C2}lookup${R0}      Comannd to get info about your ip.
+    ${C2}banner${R0}      Command to shows a random banner.
+    ${C2}history${R0}     Command to show command history.
+    ${C2}version${R0}     Command to show the framework version.
+
+
+${B0}Module Commands${R0}
+===============
+
+    Command     Description
+    -------     -----------
+    ${C2}use${R0}         Command to call existing module${R1}s${R0}.
+    ${C2}list${R0}        Command to show available option${R1}s${R0}.
+    ${C2}info${R0}        Command to information about module${R1}s${R0}.
+    ${C2}back${R0}        Command to move back to main console.
+
+${B0}jasuconsole${R0}
+==========
+"
+
+echo -e "\`${C4}jasuconsole${R0}\` is a bundle of penetration testing and \nnetworking tools and an interface to Prism Att&ck."
+
+text-animation 0.0055 \
+"This framework is currently undergoing heavy development.
+So, please be patient and keep an eye on this space!
+"
+}
+
+
+# <<<--- Show [cmd] Section ! --->>>
+
+moduleCOMMANDS() {
+echo -e "
+${B0}${C3}Available Modules${R0}
+=================
+
+$(SHOWMODULES)
+
+Usage: ${C3}use :<module>/<submodule>/handler${R0}
+e.g:   ${C3}use :secure/hashes/handler${R0}
+
+${B0}${C2}Usage of Module & description${R0}
+=============================
+
+${C2}┌[use :phish/otpweb/handler${R0}
+└─► module to run :otp phishing site${R1}s${R0}.
+
+${C2}┌[use :phish/notpweb/handler${R0}
+└─► module to run :notp phishing site${R1}s${R0}.
+
+${C2}┌[use :phish/gpsweb/handler${R0}
+└─► module to create geolocation phishing site${R1}s${R0}.
+
+${C2}┌[use :phish/camweb/handler${R0}
+└─► module to create camera phishing site${R1}s${R0}.
+
+${C2}┌[use :phish/micweb/handler${R0}
+└─► module to create microphone phishing site${R1}s${R0}.
+
+${C2}┌[use :bomber/callnsms/handler${R0}
+└─► module to perform a bombing attack.
+
+${C2}┌[use :lookup/user/handler${R0}
+└─► module to gather information of user${R1}s${R0}.
+
+${C2}┌[use :lookup/number/handler${R0}
+└─► module to gather information of number${R1}s${R0}.
+
+${C2}┌[use :lookup/mac/handler${R0}
+└─► module to gather vendor information from Mac addresse${R1}s${R0}.
+
+${C2}┌[use :lookup/coordinate/handler${R0}
+└─► module to gather exact location using coordinate${R1}s${R0}.
+
+${C2}┌[use :remote/payload/handler${R0}
+└─► module to create a metasploit payload
+  for your target device${R1}s${R0}.
+
+${C2}┌[use :brute/social/handler${R0}
+└─► module to perform social bruteforce attack.
+
+${C2}┌[use :brute/hashes/handler${R0}
+└─► module to perform hashes bruteforce attack.
+
+${C2}┌[use :attack/ddos/handler${R0}
+└─► module to perform ddos attack on site${R1}s${R0}.
+
+${C2}┌[use :secure/hashes/handler${R0}
+└─► module to generate hashing algorithm.
+
+${C2}┌[use :secure/passwd/handler${R0}
+└─► module to generate strong password${R1}s${R0}.
+
+${C2}┌[use :system/binary/handler${R0}
+└─► module to encdoe and decode binary.
+
+${C2}┌[use :mask/nurl/handler${R0}
+└─► module to create usr  masking.
+
+${C2}┌[use :find/proxy/handler${R0}
+└─► module to get fresh proxies for usage.
+
+${C2}┌[use :find/ip/handler${R0}
+└─► module to get ip from different device${R1}s${R0}.
+
+${C2}┌[use :identify/hashid/handler${R0}
+└─► module to identify hash algorithms.
+
+${C2}┌[use :scan/virus/handler${R0}
+└─► module to scan viruses from a file.
+
+${C2}┌[use :scan/pwned/handler${R0}
+└─► module to scan pwned password/email etc.
+
+${C2}┌[use :local/server/handler${R0}
+└─► module to start php server.
+
+${B0}${C4}Upcomming Modules & description${R0}
+===============================
+
+${C4}┌[use :steganography/handler${R0}
+└─► module to keep secret message${R1}s${R0}.
+"
+}
+
+infoCOMMANDS() {
+NETWORK() {
+connection() {
+curl -Is http://www.google.com &> /dev/null
+}
+connect() {
+connection
+if [[ $? == 0 ]]
+then
+echo "Online             prism have proper connection"
+else
+echo "Offline            prism doesn't have connection"
+fi
+}
+NETWORK=$(printf "$(connect)")
+}
+
+TYPE() {
+type() {
+if [[ ! $__return__ == 105 ]];then
+echo "Offline            prism is running on system"
+else
+echo "Online             prism is running on temp"
+fi
+}
+TYPE=$(printf "$(type)")
+}
+
+logPRINT() {
+
+  printf "\r${b0SIGN} Connecting to Network ..."
+}
+
+logREMOVE() {
+printf "\r                         "
+}
+
+UPDATE() {
+UPDATE=$(cat <(curl -sLo- git.io/prism) | grep "VAR" | awk '{print $1}' | head -n1 | cut -c 5-)
+}
+
+progress-bar "__loading__" "0" "prog:1" "Connecting to Network ..." -r
+
+
+logPRINT & TYPE
+logPRINT & UPDATE
+logPRINT & NETWORK
+
+
+if [[ $VAR == $UPDATE ]]
+then
+STATUS=$(echo "Unavailable        Check available update")
+else
+STATUS=$(echo "Available          Update command: prism update")
+fi
+
+echo -e "
+Available Info:
+===============
+
+   Option         Current Status     Description
+   -------        --------------     -----------
+    Running        $TYPE
+    jasuUpdate      $STATUS
+    Connection     $NETWORK
+"
+}
+
+pluginCOMMANDS() {
+echo -e "${g0SIGN} Available Framework plugins:
+    * api keys
+    * history
+    * json
+    * ls.gd
+    * ngrok
+    * cloudfare
+    * prompt
+    * request
+    * token
+"
+}
+
+
+optionCOMMANDS() {
+echo -e "
+Global Options:
+===============
+
+   Option             Current Setting      Description
+   ------             ---------------      -----------
+   ConsoleDebug       $debug                Console output with debug mode
+   HistoryLog         $LOG                   Verbosity of logs
+   Prompt             prism prompt=$PROMPT         The prompt number
+   PromptChar         $STYLE               The prompt character
+   Color              prism color=$COLOR          The color number
+   ColorScheme        $color_name             ${R0}The color output
+"
+}
+
+# <<<--- Installer --->>>
+
+if [[ ${1} == "-i" || ${1} == "--install" ]];then
+if [[ ! $__return__ == 105 ]];then
+source $CWD/assets/programs/setup.prism $2 $3
+else
+source <(curl -sLo- "${RAWLINK}/assets/programs/setup.prism") $2 $3
+fi
+exit 0
+
+elif [[ ${1} == "-u" || ${1} == "--update" ]];then
+if [[ ! $__return__ == 105 ]];then
+source $CWD/assets/programs/update.prism
+else
+source <(curl -sLo- "${RAWLINK}/assets/programs/update.prism")
+fi
+exit 0
+
+elif [[ ${1} == "-r" || ${1} == "--remove" ]];then
+if [[ ! $__return__ == 105 ]];then
+source $CWD/assets/programs/remove.prism
+else
+source <(curl -sLo- "${RAWLINK}/assets/programs/remove.prism")
+fi
+exit 0
+fi
+
+
+if [[ ! $__return__ == 105 ]];then
+source $CWD/assets/programs/credentials.site
+else
+source <(curl -sLo- "${RAWLINK}/assets/programs/credentials.site")
+fi
+
+
+# <<<--- Argument Section ! --->>>
+
+if [[ ${1} == "-h" || ${1} == "--help" ]]
+then
+echo -e "
+Usage: prismconsole [options]
+
+Command options:
+        command=[prism commands] :
+        Jump to the command without opening prism in exact way.
+  e.g: command=help ; command=show modules
+
+Module options:
+       module=[submodule] command=[STRING/INTEGER] :
+       Jump to specific module whatever belong to submodule and run aswell.
+   e.g: module=secure/hashes/handler command=list
+
+Console options:
+       -v, --version  Check framework version.
+       -h, --help     Show framework help menu.
+       -d, --debug    Show logs in debugging mode.
+       -q, --quite    Do not print the banner on startup.
+       -o, --output   Output to the specified file.
+
+Auth options:
+     -register   Register a new prism account.
+     -login      Login to existing prism account.
+     -auth       Save existing account details to prism without login.
+
+   e.g:
+       -auth userid=xyzabc1234 token=abcDefGhI
+
+Advance options:
+        color=[NUM]   Set a different colors while start.
+        prompt=[NUM]  Set a different prompts while start.
+
+Startup options:
+        updater=[on/off] Change startup update checker settings. 
+"
+exit 0
+
+elif [[ ${1} == "-v" || ${1} == "--version" ]]
+then
+echo "Framework Version: release v${VAR}"
+exit 0
+
+elif [[ ${1} == "-d" || ${1} == "--debug" ]]
+then
+set -x
+debug="true"
+
+elif [[ ${1} == "-o" || ${1} == "--output" ]]
+then
+$(basename $0) | tee > $2 || exit 0
+fi
+
+if [[ ${1} == "-register" ]]
+then
+  assets/login/login.$ARCH -register
+  exit 0
+elif [[ ${1} == "-login" ]]
+then
+  assets/login/login.$ARCH -login
+  exit 0
+elif [[ ${1} == "-auth" ]]
+then
+  assets/login/login.$ARCH ${@}
+  exit 0
+fi
+
+if [[ ${1} == "prompt="* ]]
+then
+ INT=$(printf "${1#prompt=}")
+  INT=${INT#0}
+  if [[ ${INT} =~ ^-?[0-9]*[.,]?[0-9]*[eE]?-?[0-9]+$ ]]
+   then
+   if [[ ! ${INT} -gt ${PSNUM} ]]
+    then
+       if [[ ! $__return__ == 105 ]]
+        then
+        FIND=$(grep -w "PROMPT=*" $(basename $0) | awk NR==1)
+        sed -i "s/$FIND/PROMPT=$INT/g" $(basename $0)
+        PROMPT=$INT
+        else
+        PROMPT=$INT
+       fi
+    else
+    echo "${r0SIGN} Your Prompt Number digit must be above ${C1}${INT}${R0} <= ${C2}${PSNUM}${R0}"
+   fi
+ fi
+fi
+
+ if [[ ${1} == "command="* ]]
+  then
+    CMD="${@#command=}"
+   if [[ ${#CMD} -gt 0 ]]
+    then
+    command="${CMD}"
+    TRUE=false
+    if [[ ${1} == "use :"* ]]
+    then
+      input="${CMD}"
+      fi
+    else
+    echo -e "${r0SIGN} Here's command=‘nothing’ add some command like : help"
+    exit 1
+   fi
+ fi
+
+if [[ ${1} == "updater="* ]]
+  then
+    INT="${@#updater=}"
+   if [[ ${#INT} -gt 0 ]]
+    then
+      updater.conf()
+    {
+      FIND=$(grep -w "updater=*" $(basename $0) | awk NR==1)
+      sed -i "s/$FIND/updater=$INT/g" $(basename $0)
+    }
+  if [[ $INT == "on" ]]
+  then
+    updater.conf
+    printf "${g0SIGN} settings applied.\n${g0SIGN} updater will work while prismconsole start.\n"
+    exit 0
+  elif [[ $INT == "off" ]]
+  then
+    updater.conf
+    printf "${g0SIGN} settings applied.\n${g0SIGN} updater will not work while prismconsole start.\n"
+    exit 0
+  else
+    printf "${r0SIGN} invalid updater input choose : on/off .\n"
+    exit 1
+    fi
+  fi
+fi
+
+if [[ ${1} == "module="* ]]
+then
+ INT=$(printf "use :${1#module=}")
+  CHC="${INT#use :}"
+  if [[ ${#CHC} -lt 1 ]]
+   then
+     RANDOM1s=$(echo $((1 - $RANDOM % ${MODULES})))
+     RANDOM2s=$(echo $((1 - $RANDOM % ${SUBMODULES})))
+     echo -e "${r0SIGN} Here's module=‘nothing’ add a submodule like : ${MODULE[RANDOM1s]}/${SUBMODULE[RANDOM2s]}/handler"
+   exit 1
+  fi
+
+ if [[ ${2} == "command="* ]]
+  then
+   CMD=$(printf "${2#command=}")
+   if [[ ${#CMD} -gt 0 ]]
+    then
+    command=$INT
+    input=$CMD
+    FALSE=false
+  else
+    echo -e "${r0SIGN} Here's command=‘nothing’ Please mention that."
+    exit 1
+   fi
+ fi
+
+ if [[ ${#CHC} -gt 0 ]] | [[ ${#CMD} -lt 1 ]]
+  then
+  echo -e "${r0SIGN} Here's module=‘${CHC}’ but command=‘nothing’ Please mention that."
+  exit 1
+ fi
+fi
+
+
+# <<<--- Read Section ! --->>>
+
+readINPUT() {
+if [[ ${input} == "list" ]]
+ then
+    $1
+
+elif [[ ${input} =~ ^-?[0-9]*[.,]?[0-9]*[eE]?-?[0-9]+$ ]]
+   then
+    if [[ ${input} -lt $2 ]]
+    then
+    if [[ ! $__return__ == 105 ]];then
+    source $CWD/programs/$3
+    else
+    cd $TMPDIR || exit 1
+    printf "${b0SIGN} Downloading Program...   \r"
+    source <(curl -sLo- "${RAWLINK}/programs/$3")
+fi
+fi
+fi
+     theERROR
+     extarnalCMD
+}
+
+
+readINPUTS() {
+if [[ $input == "$1" ]]
+  then
+     input=""
+   if [[ ! $__return__ == 105 ]];then
+    $2 $PWD/programs/$3
+   else
+   cd $TMPDIR || exit 1
+   printf "${b0SIGN} Downloading Program...   \r"
+   $2 <(curl -sLo- "${RAWLINK}/programs/$3")
+fi
+fi
+    theERROR
+    extarnalCMD
+}
+
+readLIST() {
+if [[ $input == "list" ]]
+     then
+     $1
+fi
+}
+
+cmdFALSE() {
+if [[ ${FALSE} == "false" ]]
+ then
+if [[ ${#command} -gt 0 ]]
+then
+echo -e "${r0SIGN} Unsatisfied command ‘$command’ :: execute '?'/'help'"
+fi
+    exit 0
+fi
+}
+
+
+# <<<--- Header Section ! --->>>
+
+randomBANNER() {
+RANDOMs=$(echo $((1 + $RANDOM % 17)))
+if [[ ! $__return__ == 105 ]];then
+  if [[ ${RANDOMs} == "15" ]]
+  then
+    source ${presentDIR}/assets/logos/logo.15
+  else
+   bash ${presentDIR}/assets/logos/logo."${RANDOMs}"
+  fi
+else
+  if [[ ${RANDOMs} == "logo.15" ]]
+  then
+    source <(curl -sL "${RAWLINK}/assets/logos/logo.15")
+  else
+    source <(curl -sL "${RAWLINK}/assets/logos/logo.${RANDOMs}")
+  fi
+fi
+}
+
+randomTIP() {
+RANDOMs=$(echo $((1 + $RANDOM % 2)))
+
+case ${RANDOMs} in
+1)
+       printf "Prismconsole tip: When in a module, use ${C2}back${R0} to go\n";WAIT
+       printf "back to the top level prompt\n\n";WAIT
+       ;;
+2)
+       printf "Prismconsole tip: You can use ${C2}help${R0} to view all\n";WAIT
+       printf "available commands and modules.\n\n";WAIT
+       ;;
+esac
+}
+
+theHEADER() {
+randomBANNER
+printf "+ -- --=[ ${C3}prismconsole release v${VAR}${R0} ]=-- -- +\n";WAIT
+printf "+ -- --=[ ${C2}${R4}${MODULES}${R0}${C2} modules - envmodules ${R4}${SUBMODULES}${R0} ]=-- -- +\n";WAIT
+
+TOTAL_STUFF=$(printf $((MODULES+SUBMODULES)))
+printf "\t   ${C4}└────────[${TOTAL_STUFF}${C8}]──────────┘${R0}\n\n";WAIT
+
+if [[ -f $TMPDIR/update.log ]]
+then
+  source $TMPDIR/update.log
+if [[ ${update} == 1 ]]
+then
+    source $TMPDIR/version.prism
+  if [[ $UPVAR == "1" ]]
+  then
+    printf "\t    ${C2}┌[ ${R0}Update Available${C2} ]┐${R0}\n"
+    printf "\t    ${C2}└────►[ $NEWVAR ]◄────┘${R0}\n\n"
+  fi
+  if [[ ${#UPVAR} -lt 1 ]]
+  then
+  printf "\t     [ ${C2}Update Available${R0} ]\n"
+fi
+printf "  ${C2}Note: use \"prism update\" for update immediately.${R0}\n\n"
+fi
+fi
+
+
+if [[ -f $TMPDIR/event.log ]]
+then
+  source $TMPDIR/event.log
+if [[ $event == "1" ]]
+then
+  echo -e "${C2}(${R0}${todayEvent}${C2})${R0}\n"
+fi
+fi
+
+randomTIP
+}
+
+if [[ ! ${1} == "-d" || ! ${1} == "--debug" ]]
+then
+  if [[ ! ${2} == "dev"  ]]
+  then
+    if [[ $1 != "-q" ]] && [[ $1 != "--quite" ]]
+    then
+      if [[ ! $__return__ == 105 ]];then
+gtUPDATE()
+{
+cd /data/data/com.termux/files/home/test
+[ $(git rev-parse HEAD) = $(git ls-remote $(git rev-parse --abbrev-ref @{u} | sed 's/\// /g') | cut -f1) ] && echo "update=0" > $TMPDIR/update.log || echo "update=1" > $TMPDIR/update.log
+CHECKVAR=$(curl -sL https://raw.githubusercontent.com/J4sutin/j4sutin.github.io/default/test/prismconsole | grep "VAR=" | tr -d 'VAR=' | awk NR==1)
+CHECKVER=$(echo "$CHECKVAR" | tr -d '.')
+CHECKNVAR=$(echo "$VAR" | tr -d '.')
+if [[ $CHECKVER -gt $CHECKNVAR  ]]
+then
+  echo "NEWVAR=$CHECKVAR" > $TMPDIR/version.prism
+  echo "UPVAR=1" >> $TMPDIR/version.prism
+else
+  echo "" > $TMPDIR/version.prism
+fi
+}
+
+autoUPDATE()
+{
+if [[ -f $TMPDIR/update.log ]]
+then
+  source $TMPDIR/update.log
+  if [[ ${update} == 1 ]]
+  then
+    source $TMPDIR/version.prism
+    if [[ ${autoupdate} == "true" ]]
+    then
+      cd /data/data/com.termux/files/home/test
+      git pull
+      echo "update=0" > $TMPDIR/update.log
+    fi
+  fi
+fi
+}
+
+if [[ ! $1 == "module="* ]] && [[ ! $1 == "command="* ]]
+ then
+login.conf
+if [[ ${logininfo} == *"Off"* ]]
+then
+  echo -e "${logininfo}"
+  NET=off
+fi
+if [[ $1 == "-dev" ]]
+then
+  :
+#  log2dev "user" "passwd"
+else
+  vaild_login
+fi
+
+if [[ $updater == "on" ]]
+then
+  if [[ ! $1 == "-dev" ]] || [[ ! $updater == "on" ]]
+  then
+    if [[ ! ${logininfo} == *"Off"* ]]
+    then
+      progress-bar "__cmd__ gtUPDATE" "0" "prog:1" "Checking for latest update ..." -r
+      progress-bar "__cmd__ autoUPDATE" "0" "prog:1" "Updating prismconsole please wait ..." -r
+    fi
+  fi
+fi
+
+progress-bar "__cmd__ special.event" "0" "prog:1" "Welcome to Prism Att&ck ..." -r
+fi
+login.success "Welcome ${C2}${USER}${R0} to Prism Att&ck."
+theHEADER
+else
+  if [[ ! $1 == "module"* ]]
+  then
+cd $TMPDIR
+curl -sLO "${RAWLINK}/assets/login/login.$ARCH"
+chmod +x login.$ARCH
+
+progress-bar "__cmd__ ./login.$ARCH" "0" "prog:1" "Welcome to Prism Att&ck ..." -r
+
+progress-bar "__cmd__ special.event" "0" "prog:1" "Welcome to Prism Att&ck ..." -r
+
+vaild_login
+  fi
+theHEADER
+   fi
+  fi
+  if [[ $1 == "-q" ]]
+  then
+  dev.login
+  fi
+ fi
+ dev.login
+fi
+
+if [[ ! ${FALSE} == "false" ]]
+then
+  if [[ ${autolist} == "on" ]]
+  then
+  AUTOLIST()
+  {
+     command=""
+     input=list
+     BUNDLE
+     input=""
+   }
+else
+  AUTOLIST()
+  {
+    command=""
+  }
+fi
+else
+  AUTOLIST()
+  {
+    command=""
+  }
+fi
+
+
+findMODULES()
+{
+  ARG1=$1
+  ARG2=$2
+
+for i in "${MODULE[@]}"
+  do
+  KEY=$(printf "%02d" $NUM)
+  LOOP=$((${LOOP:-0}+1))
+  CATCH=${i::$((${#i}))}
+  if [[ ${CATCH} == ${ARG1} ]]
+  then
+     MODULE_true=0
+     break
+  fi
+  ((NUM++))
+  done
+
+for i in "${SUBMODULE[@]}"
+  do
+  KEY=$(printf "%02d" $NUM)
+  LOOP=$((${LOOP:-0}+1))
+  CATCH=${i::$((${#i}))}
+  if [[ ${CATCH} == ${ARG2} ]]
+  then
+     SUBMODULE_true=0
+     break
+  fi
+  ((NUM++))
+  done
+}
+
+msnum()
+{
+  MNUM="${1}"
+  SNUM="${2}"
+  R1NUM="${2}"
+  R2NUM="${3}"
+
+  if [[ ${R2NUM} == "@" ]]
+  then
+    printf "use :"
+  elif [[ ${R2NUM} == ":" ]]
+  then
+    printf "Using configured :"
+  fi
+
+  if [[ ${MNUM} -gt "0" ]]
+  then
+    PRINTMODULE=$(printf "${MODULE[${MNUM} -1]}")
+    if [[ ${R1NUM} == "~" || ${R2NUM} == "~" ]]
+    then
+      printf "${PRINTMODULE~}"
+    elif [[ ${R1NUM} == "~~" || ${R2NUM} == "~~" ]]
+    then
+      printf "${PRINTMODULE~~}"
+    else
+      printf "${PRINTMODULE}"
+    fi
+  fi
+
+  getMSnum
+
+  if [[ ${SNUM} -gt "0" ]]
+  then
+    PRINTSUBMODULE=$(printf "${PSUBMODULE[${SNUM} -1]}")
+    if [[ ${R1NUM} == "~" || ${R2NUM} == "~" ]]
+    then
+      printf "/${PRINTSUBMODULE~}"
+    elif [[ ${R1NUM} == "~~" || ${R2NUM} == "~~" ]]
+    then
+      printf "/${PRINTSUBMODULE~~}"
+    else
+      printf "/${PRINTSUBMODULE}"
+    fi
+  fi
+
+  MSNAME=$(printf "${PRINTMODULE~~}/${PRINTSUBMODULE~~}")
+
+  if [[ ${R2NUM} == "@" ]]
+  then
+    printf "/handler"
+  elif [[ ${R2NUM} == ":" ]]
+  then
+    printf " mode"
+  fi
+
+  if [[ ${R2NUM} == "-" ]]
+  then
+    printf "${LIMIT}"
+  fi
+}
+
+writeCONFIGURE()
+{
+  ARG1=$1
+  ARG2=$2
+     msERROR()
+     {
+     list $ARG1 $ARG2 N
+     if [[ ${input} == *[!A-Za-z\&./=_:?-]* || ${input} == ${LIMIT} ]]
+     then
+       :
+     else
+       if [[ ${input} != ${LIMIT} ]]
+       then
+         ignoreERROR
+       fi
+     fi
+
+     if [[ ${input} == "?" ]]
+     then
+       input_="${input}"
+       input="${input#?}"
+     fi
+
+     if [[ ${input} -gt ${LIMIT} ]]
+     then
+      ignoreERROR
+     fi
+   }
+     AUTOLIST
+     while true
+     do
+     if [[ ! ${FALSE} == "false" ]]
+     then
+     read -r -p "${R4}prism${R0} use(${C1}program/$(msnum $ARG1 $ARG2)${R0}) > " input
+     msERROR
+   else
+     msERROR
+     fi
+
+     if [[ ! ${FALSE} == "false" ]]
+     then
+     BUNDLE
+     else
+     BUNDLE
+     exit 0
+     fi
+     cmdFALSE
+     done
+}
+
+# <<<--- History Section ! --->>>
+
+# Custom History Logger
+
+function psfHISTORY () {
+NUM=1
+
+if [[ ! -f $OUTPUT ]]
+ then
+ touch $OUTPUT
+fi
+
+LOG=$(wc -l ${OUTPUT} | awk '{ print $1 }')
+
+overHISTORY() {
+TOT=$((LOG-30))
+sed -n "${TOT},${LOG}p" $OUTPUT > .temp.history.prism && mv .temp.history.prism $OUTPUT
+}
+
+if [[ ${LOG} -gt 50 ]]
+then
+cd $HOME || exit 1
+overHISTORY
+LOG=$(wc -l ${OUTPUT} | awk '{ print $1 }')
+fi
+
+
+i=1
+
+fetch() {
+for (( c=1; c<=LOG; c++))
+do printf "...\n"
+done
+}
+
+declare -a LOGS=(
+$(printf "$(fetch)")
+)
+
+historyLOOP() {
+for i in "${LOGS[@]}"
+  do
+  KEY=$(printf "%02d" $NUM)
+  LOOP=$((${LOOP:-0}+1))
+  FILE=$(cat "$OUTPUT" | awk NR==${LOOP})
+  history -s "${FILE}"
+  ((NUM++))
+  done
+}
+  historyLOOP
+  LOOP=0
+}
+
+unset psfHISTORY
+
+# Default (Shell) History Logger
+function psfHISTORY()
+{
+history -r "${OUTPUT}"
+}
+
+# <<<--- Psf Section ! --->>>
+
+__prism__() {
+psfHISTORY
+
+if [[ $PROMPT == 1 ]]
+then
+read -r -e -p $'\e[4;0;0;0;0;0;0;0;0;4mpsf\e[0m > \e[0m' command
+STYLE=$'\e[4mpsf\e[0m > \e[0m'
+
+elif [[ $PROMPT == 2 ]]
+then
+read -r -e -p $'\e[0;104m \e[90m~/prism \e[0m\e[94m \e[0m' command
+STYLE=$'\e[104m \e[90mpsf \e[0m\e[94m\e[0m'
+
+elif [[ $PROMPT == 3 ]]
+then
+read -r -e -p $'\e[93;0;0;0;0;0;93mpsf\e[93m ➤ \e[0m' command
+STYLE=$'\e[93mpsf\e[93m ➤ \e[0m'
+fi
+
+if [ ${#command} -gt 0 ]
+then
+if [[ $(cat "${OUTPUT}") == *"${command}"* ]]
+then
+sed -i "s,$command,,g" "$OUTPUT" | sed -i '/^$/d' "$OUTPUT"
+sed -i "s,$command,,g" "$OUTPUT" | sed -i '/^$/d' "$OUTPUT"
+echo "${command}" >> "$OUTPUT"
+else
+echo "${command}" >> "$OUTPUT"
+fi
+fi
+}
+
+prism()
+{
+  __prism__
+}
+
+showHISTORY() {
+while IFS= read -r line; do
+    LOOP=$((${LOOP:-0}+1))
+    printf "${LOOP}  $line\n"
+done < "$OUTPUT"
+LOOP=0
+}
+
+
+# <<<--- Error Section ! --->>>
+
+showERROR() {
+echo -e "${r0SIGN} Unsatisfied command ‘${@:1}’ :: execute '?'/'help'"
+}
+
+ignoreERROR() {
+if [[ ${input} == "?" || ${input} == "help" ]]
+then
+   :
+
+elif [[ ${input} == "list" ]]
+then
+   :
+
+elif [[ ${CMD} == "list" ]]
+then
+   :
+
+elif [[ ${input} == "back" ]]
+then
+   :
+
+elif [[ ${input} == "info" ]]
+then
+   :
+
+elif [[ ${input} == "banner" ]]
+then
+   :
+
+elif [[ ${input} == "exit" ]]
+then
+   :
+
+elif [[ ${input} == "q" ]]
+then
+   :
+
+elif [[ ${input} == "clear" ]]
+then
+   :
+
+elif [[ ${input} == *""* ]]
+     then
+  if [[ ${#input} -gt 0 ]]
+   then
+#     echo -e "\e[94m(\e[0mexec\e[94m)\e[0m: ${command}"
+      $input 2>/dev/null
+  if [[ $? == 0 ]]
+     then
+        :
+        input=""
+      else
+         showERROR "$input"
+         input=""
+  fi
+fi
+
+else
+  showERROR "$input"
+  input=""
+  fi
+}
+
+
+ignoreCOMMAND() {
+if [[ ${command-} == "set"* ]]
+then
+showERROR $command
+command=""
+fi
+
+if [[ ${input-} == "set"* ]]
+then
+showERROR $input
+input=""
+fi
+}
+
+
+theERROR() {
+command="$command"
+  if [ ${#command} -gt 0 ]
+   then
+      showERROR $command
+  fi
+
+input="${input}"
+
+if [[ ${input} == "?" ]]
+then
+input_="${input}"
+input="${input#?}"
+fi
+}
+
+
+# <<<--- Command Section ! --->>>
+
+getCOMMANDS() {
+
+ if [[ ${command} == "use :phish/otpweb/handler" ]]
+   then
+      TRUE=true
+
+   elif [[ ${command} == "use :phish/notpweb/handler" ]]
+   then
+     TRUE=true
+      
+   elif [[ ${command} == "use :phish/gpsweb/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :phish/camweb/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :phish/micweb/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :lookup/user/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :bomber/callnsms/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :remote/payload/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :brute/social/handler" ]]
+   then
+      TRUE=true
+
+   elif [[ ${command} == "use :brute/hashes/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :attack/ddos/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :lookup/number/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :lookup/coordinate/handler" ]]
+   then
+      TRUE=true
+
+    elif [[ ${command} == "use :lookup/mac/handler" ]]
+    then
+      TRUE=true
+
+  elif [[ ${command} == "use :secure/hashes/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :secure/passwd/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :system/binary/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :mask/nurl/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :find/proxy/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :find/ip/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :identify/hashid/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :scan/virus/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :scan/pwned/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "use :local/server/handler" ]]
+   then
+      TRUE=true
+
+  elif [[ ${command} == "?" || ${command} == "help" ]]
+   then
+      helpCOMMANDS
+      command=""
+
+  elif [[ ${command} == "banner" ]]
+     then
+        theHEADER
+        command=""
+
+  elif [[ ${command} == "list" ]]
+     then
+        echo -e "${g0SIGN} 'list' command only works with Modules! :: execute '?'/'help'"
+        command=""
+
+ elif [[ ${command} == "info" ]]
+     then
+        echo -e "${g0SIGN} 'info' command only works in Modules! :: execute '?'/'help'"
+        command=""
+
+ elif [[ ${command} == "back" ]]
+     then
+        echo -e "${g0SIGN} 'back' command only works in Modules! :: execute '?'/'help'"
+        command=""
+
+ elif [[ ${command} == "version" ]]
+     then
+        echo -e "Framework Version: release v$VAR"
+        command=""
+
+ elif [[ ${command} == "lookup" ]]
+     then
+       lookup()
+       {
+         curl -s ifconfig.me/all.json | jq > $TMPDIR/lookup.prism
+       }
+        progress-bar "__cmd__ lookup" "0" "prog:1" "Getting information ..." -r
+        cat $TMPDIR/lookup.prism | jq
+        command=""
+ 
+ elif [[ ${command} == "sysinfo" ]]
+     then
+       getSYS
+        command=""
+
+  elif [[ ${command} == "exit" || ${command} == "quit" ]]
+     then
+       progress-bar "__sw2__" "0" "prog:1" "Existing Psfconsole ..." -r 
+        exit 0
+        command=""
+
+  elif [[ ${command} == "prism update" ]]
+     then
+       git pull
+       command=""
+       exit 0
+
+  elif [[ ${command} == "use" ]]
+     then
+        echo -e "Usage: use :<module>/handler
+
+Interact with a module by name term/index.
+If a module name is not found, it will be treated as a search term.
+An index from the exist module results can be selected if desired.
+
+Examples:
+  use :info/handler
+"
+        command=""
+
+  elif [[ ${command} == "search" ]]
+     then
+        echo -e "Usage: search module:<module>
+       search submodule:<submodule>
+
+Search  a module/submodule by name term/index.
+If a module name is not found, it will be treated as a search term.
+An index from the search results from exist module selected if desired.
+
+Examples:
+  search module:lookup
+  search submodule:user
+"
+        command=""
+
+  elif [[ ${command} == "search module:"* ]]
+     then
+        INPUT="${command#search module:}"
+for i in "${MODULE[@]}"
+  do
+  KEY=$(printf "%02d" $NUM)
+  LOOP=$((${LOOP:-0}+1))
+  CATCH=${i::$((${#i}))}
+  if [[ ${CATCH} == ${INPUT} ]]
+  then
+     echo -e "Module \e[97;104m${INPUT}${R0} is Available."
+     break
+  fi
+  ((NUM++))
+  done
+
+if [[ ${CATCH} != ${INPUT} ]]
+  then
+    echo -e "Module \e[101m${INPUT}${R0} is not Available."
+fi
+        LOOP=0
+        command=""
+
+
+  elif [[ ${command} == "search submodule:"* ]]
+     then
+        INPUT="${command#search submodule:}"
+for i in "${SUBMODULE[@]}"
+  do
+  KEY=$(printf "%02d" $NUM)
+  LOOP=$((${LOOP:-0}+1))
+  CATCH=${i::$((${#i}))}
+  if [[ ${CATCH} == ${INPUT} ]]
+  then
+     echo -e "Sub Module \e[97;104m${INPUT}${R0} is Available."
+     break
+  fi
+  ((NUM++))
+  done
+
+if [[ ${CATCH} != ${INPUT} ]]
+  then
+    echo -e "Sub Module \e[101m${INPUT}${R0} is not Available."
+fi
+        LOOP=0
+        command=""
+
+  elif [[ ${command} == "show" ]]
+     then
+        echo -e "${r0SIGN} Argument required\n"
+        echo -e "${g0SIGN} Valid parameters for the \"show\" command are: modules, info, plugins, options"
+        command=""
+
+  elif [[ ${command} == "show"* ]]
+     then
+       progress-bar "__wait__ 0.5" "0.0180" "prog:5" "" -r 
+        INPUT="${command#show }"
+  if [[ $INPUT == "modules" ]]
+   then
+      moduleCOMMANDS
+      command=""
+
+  elif [[ $INPUT == "info" ]]
+   then
+      infoCOMMANDS
+      command=""
+
+  elif [[ $INPUT == "plugins" ]]
+   then
+      pluginCOMMANDS
+      command=""
+
+  elif [[ $INPUT == "options" ]]
+   then
+      optionCOMMANDS
+      command=""
+
+  elif [[ $INPUT == "-h" || $INPUT == "--help" || $INPUT == "help" ]]
+    then
+       echo -e "${g0SIGN} Valid parameters for the \"show\" command are: modules, info, plugins, options"
+       command=""
+
+   else
+     echo -e "${r0SIGN} Invalid parameter \"${INPUT}\", use "'"show -h"'" for more information. "
+     command=""
+  fi
+
+  elif [[ ${command} == "q" ]]
+     then
+       progress-bar "__wait__ 1" "0.0350" "prog:5" "" -r
+        clear
+        exit 0
+        command=""
+
+  elif [[ ${command} == "clear" ]]
+     then
+       progress-bar "__sw2__" "0.05" "prog:4" "" -r 
+        clear
+        command=""
+
+  elif [[ ${command} == "history" ]]
+      then
+        progress-bar "__sw2__" "0.03" "prog:2" "" -r 
+         showHISTORY
+         command=""
+
+  elif [[ ${command} == *""* ]]
+     then
+        ignoreCOMMAND command
+  if [[ ${#command} -gt 0 ]]
+   then
+#     echo -e "\e[94m(\e[0mexec\e[94m)\e[0m: ${command}"
+     $command 2>/dev/null
+ if [[ $? == 0 ]]
+     then
+       command=""
+     else
+       :
+  fi
+fi
+  fi
+
+  for i in "${extraMODULES[@]}"
+  do
+  KEY=$(printf "%02d" $NUM)
+  LOOP=$((${LOOP:-0}+1))
+  LSMODULES=${i::$((${#i}))}
+  if [[ ${command} == ${LSMODULES} ]]
+  then
+    TRUE=true
+     break
+  fi
+  ((NUM++))
+  done
+ 
+}
+
+extarnalCMD() {
+  if [[ ${input_} == "?" || ${input} == "help" ]]
+   then
+       helpCOMMANDS
+       input_=""
+         input=""
+
+   elif [[ ${input} == "back" ]]
+   then
+     if [[ ${FALSE} == "true" ]]
+      then
+        unset FALSE
+  prism()
+  {
+    __prism__
+  }
+while true
+do
+  progress-bar "__sw2__" "0" "prog:1" "" -r 
+         __main__
+done
+
+     fi
+while true
+do
+  progress-bar "__sw2__" "0" "prog:1" "" -r
+         __main__
+done
+elif [[ ${input} == "banner" ]]
+      then
+         theHEADER
+         input=""
+
+elif [[ ${input} == "info" ]]
+     then
+       progress-bar "__sw2__ " "0.0350" "prog:1" "" -r 
+        aboutMOFULES
+        echo -e "
+Name: $NAME
+Module: $MODE
+Internet Required: $NET
+
+Description:
+  $INFO
+"
+input=""
+
+elif [[ ${input} == "exit" ]]
+      then
+        progress-bar "__sw__" "0" "prog:1" "Existing prismconsole..." -r
+         exit 0
+
+elif [[ ${input} == "q" ]]
+      then
+        progress-bar "__sw2__" "0.03" "prog:2" "" -r 
+         clear
+         exit 0
+
+elif [[ ${input} == "clear" ]]
+      then
+         clear
+
+  fi
+}
+
+
+# <<<--- Reading Section ! --->>>
+
+readCONFIGURE () {
+  if [[ ! ${#command} -gt "0" ]]
+  then
+    :
+  elif [[ ${command} == "$(msnum 1 1 @)" ]]
+  then
+    checkNET
+     description "number" "$(msnum 1 1 ~~)" "yes"
+     echo -e "${b0SIGN} $(msnum 1 1 :)"
+     BUNDLE()
+     {
+       readLIST "list 1 1"
+       readINPUTS "run" "source" "Information\ Gathering/NUMBER/number"
+     }
+   writeCONFIGURE 1 1
+
+elif [[ ${command} == "$(msnum 1 2 @)" ]]
+  then
+    checkNET
+     description "mac" "$(msnum 1 2 ~~)" "yes"
+     echo -e "${b0SIGN} $(msnum 1 2 :)"
+     BUNDLE()
+     {
+       readLIST "list 1 2"
+       readINPUTS "run" "source" "Information\ Gathering/MAC/mac"
+     }
+   writeCONFIGURE 1 2
+
+elif [[ ${command} == "$(msnum 1 3 @)" ]]
+  then
+    checkNET
+     description "mac" "$(msnum 1 3 ~~)" "yes"
+     echo -e "${b0SIGN} $(msnum 1 3 :)"
+     BUNDLE()
+     {
+       readLIST "list 1 3"
+       readINPUTS "run" "source" "Information\ Gathering/COORDINATE/coordinate"
+     }
+   writeCONFIGURE 1 3
+
+elif [[ ${command} == "$(msnum 2 1 @)" ]]
+  then
+    checkNET
+     description "social" "$(msnum 2 1 ~~)" "yes"
+     echo -e "${b0SIGN} $(msnum 2 1 :)"
+     BUNDLE()
+     {
+       readLIST "list 2 1"
+       readINPUTS "1" "python3" "ENUMERATION/BRUTEFORCE/facebook.py"
+       readINPUTS "2" "python3" "ENUMERATION/BRUTEFORCE/instagram.py"
+       readINPUTS "3" "python2" "ENUMERATION/BRUTEFORCE/gmail.py"
+     }
+   writeCONFIGURE 2 1
+
+ elif [[ ${command} == "$(msnum 3 1 @)" ]]
+  then
+    checkNET
+     description "ddos" "$(msnum 3 1 ~~)" "yes"
+     echo -e "${b0SIGN} $(msnum 3 1 :)"
+     BUNDLE()
+     {
+       readLIST "list 3 1"
+       readINPUTS "1" "source" "ATTACK/DDOS/start"
+       readINPUTS "2" "python2" "ATTACK/DDOS/internet_protocol.py"
+     }
+   writeCONFIGURE 3 1
+
+elif [[ ${command} == "$(msnum 4 1 @)" ]]
+  then
+     description "hashes" "$(msnum 4 1 ~~)" "not"
+     echo -e "${b0SIGN} $(msnum 4 1 :)"
+     BUNDLE()
+     {
+       readINPUTS "9" "source" "Privilege\ Escalation/HASHES/hashes"
+     }
+   writeCONFIGURE 4 1
+
+elif [[ ${command} == "$(msnum 5 1 @)" ]]
+  then
+     description "binary" "$(msnum 5 1 ~~)" "not"
+     echo -e "${b0SIGN} $(msnum 5 1 :)"
+     BUNDLE()
+     {
+       readLIST "list 5 1"
+       readINPUTS "1" "python3" "ENUMERATION/BINARY/encoder.py"
+       readINPUTS "2" "python3" "ENUMERATION/BINARY/decoder.py"
+     }
+   writeCONFIGURE 5 1
+
+elif [[ ${command} == "$(msnum 6 1 @)" ]]
+  then
+    checkNET
+    description "proxy" "$(msnum 6 1 ~~)" "yes"
+    echo -e "${b0SIGN} $(msnum 6 1 :)"
+     BUNDLE()
+     {
+       readLIST "list 6 1"
+       readINPUTS "run" "python3" "Information\ Gathering/IP/finder.py"
+     }
+   writeCONFIGURE 6 1
+
+elif [[ ${command} == "$(msnum 7 1 @)" ]]
+  then
+    description "hashid" "$(msnum 7 1 ~~)" "no"
+    echo -e "${b0SIGN} $(msnum 7 1 :)"
+     BUNDLE()
+     {
+       readLIST "list 7 1"
+       readINPUTS "run" "python3" "ENUMERATION/HASH/hashid.py"
+     }
+   writeCONFIGURE 7 1
+
+elif [[ ${command} == "$(msnum 7 2 @)" ]]
+  then
+    checkNET
+    description "proxy" "$(msnum 7 2 ~~)" "yes"
+    echo -e "${b0SIGN} $(msnum 7 2 :)"
+     BUNDLE()
+     {
+       readLIST "list 7 2"
+       readINPUTS "1" "python3" "Information\ Gathering/Data\ Breach/pwned.py"
+       readINPUTS "2" "python3" "Information\ Gathering/Data\ Breach/pwnpasswd.py"
+     }
+   writeCONFIGURE 7 2
+
+ elif [[ ${command} == "$(msnum 8 1 @)" ]]
+  then
+    checkNET
+    description "server" "$(msnum 8 1 ~~)" "yes"
+    echo -e "${b0SIGN} $(msnum 8 1 :)"
+     BUNDLE()
+     {
+       readINPUT "list 8 1" "4" "LOCAL/SERVER/server"
+     }
+   writeCONFIGURE 8 1
+
+  fi
+}
+
+
+# <<<--- Main Function ! --->>>
+
+__main__() {
+interrupt
+while true
+do
+if [[ ${TRUE} == "false" ]]
+then
+  FALSE=true
+  if [[ ! ${CMD} == "use :"* ]]
+  then
+    unset FALSE
+    getCOMMANDS
+    prism
+    TRUE=true
+    break & readCONFIGURE
+  fi
+  getCOMMANDS
+fi
+
+if [[ ${FALSE} == true ]]
+then
+unset prism
+prism(){ :
+}
+
+MOD="${CMD#use :}"
+MOD=${MOD%/*}
+INPUT1=${MOD%%/*}
+INPUT2=${MOD##*/}
+
+findMODULES $INPUT1 $INPUT2
+
+if [[ ${MODULE_true} = ${SUBMODULE_true} ]]
+then
+  :
+else
+theERROR
+unset FALSE
+  prism()
+  {
+    __prism__
+  }
+fi
+
+fi
+
+if [[ ! ${FALSE} == "false" ]]
+then
+  prism
+  getCOMMANDS
+else
+  break & readCONFIGURE
+  cmdFALSE
+fi
+if [[ ${TRUE} == "true" ]]
+then
+  break & readCONFIGURE
+fi
+input=""
+theERROR
+done
+}
+
+sudoPERM
+__main__
+
+# <<<--- End --->>>
